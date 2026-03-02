@@ -1,0 +1,186 @@
+{
+  "info": {
+    "_postman_id": "ad41f9f8-3c45-4517-bfe2-8343169ffccf",
+    "name": "Device Enrollment Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "7678178"
+  },
+  "item": [
+    {
+      "name": "AddDevice",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"deviceName\": \"Pamod_Android\",\n  \"deviceType\": \"Mobile\",\n  \"userName\": \"pamod\",\n  \"Id\": \"791111\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/device/",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "device",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "VerifyDevice",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/device/verify/1771480476578/admin",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "device",
+            "verify",
+            "1771480476578",
+            "admin"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "AuthenticationVerify",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"auth\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/device/authenticated/77999/pamod",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "device",
+            "authenticated",
+            "77999",
+            "pamod"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Logout",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"logout\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/device/logout/1771480476578/admin",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "device",
+            "logout",
+            "1771480476578",
+            "admin"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "DeleteDevice",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/device/77777/pamod",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "device",
+            "77777",
+            "pamod"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "QueryAllDevicesForUser",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/device/devices/pamod",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "device",
+            "devices",
+            "pamod"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ShowActiveLogins",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/device/active_logins/pamod",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "device",
+            "active_logins",
+            "pamod"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

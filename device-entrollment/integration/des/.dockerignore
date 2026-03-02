@@ -1,0 +1,13 @@
+# Compiled artifacts — re-built inside Docker by the builder stage
+target/
+
+# Local Ballerina caches
+.ballerina/
+
+# Git
+.git/
+.gitignore
+
+# Editor / OS
+.DS_Store
+*.swp

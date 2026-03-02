@@ -1,0 +1,15 @@
+# Ballerina configurable overrides for Docker Compose
+# This file is mounted at /home/ballerina/Config.toml inside the des-service container.
+# For local development (bal run), values in config.bal defaults are used unless you
+# override them here or via a local Config.toml in the des/ directory.
+
+servicePort   = 8080
+
+# MySQL — use the docker-compose service name as the host
+dbHost        = "mysql"
+dbPort        = 3306
+dbUser        = "root"
+dbPassword    = "wso2@123"   # must match MYSQL_ROOT_PASSWORD in .env / docker-compose
+dbName        = "device_enrollment"
+
+maxLoginCount = 3

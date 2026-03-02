@@ -1,0 +1,13 @@
+# Installed locally — re-installed inside Docker by npm ci
+node_modules/
+
+# Production build output — not used by the dev-server container
+dist/
+
+# Git
+.git/
+.gitignore
+
+# Editor / OS
+.DS_Store
+*.swp
