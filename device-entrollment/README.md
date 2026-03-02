@@ -147,19 +147,125 @@ Services start in dependency order: MySQL → WSO2 IS → DES → Device Manager
 | Device Enrollment API | http://localhost:8080 |
 | Device Manager UI | http://localhost:5173 |
 
-### 3. Configure WSO2 IS
+### 3. Configure WSO2 IS (Fresh Pack)
 
-Follow **[identity/README.md](identity/README.md)** for the full step-by-step guide. In summary:
+WSO2 IS ships with no applications pre-configured. You must create two OIDC applications, copy their client IDs into the React apps, and wire the adaptive authentication script into the BankingApp login flow.
 
-1. Register **DeviceManagerApp** as an OIDC SP (callback: `http://localhost:5173`)
-2. Register **BankingApp** as an OIDC SP (callback: `http://localhost:3000/callback`)
-3. Attach the adaptive auth script (`identity/adaptive-script.js`) to the **BankingApp** SP
-4. Update the two variables at the top of the script:
+> Full details are also available in **[identity/wso2-config/README.md](identity/wso2-config/README.md)**.
+
+---
+
+#### 3a. Create the DeviceManagerApp application
+
+1. Open the new console: `https://localhost:9443/console`
+2. Navigate to **Applications** → **+ New Application**
+3. Select **Standard-Based Application** → **OpenID Connect**
+4. Fill in:
+   - **Name**: `DeviceManagerApp`
+   - **Grant types**: `Authorization Code` (enable PKCE)
+   - **Callback URL**: `http://localhost:5173`
+5. Click **Register**
+6. **Copy the Client ID** — you will need it in the next step
+
+Under the **Protocol** tab, also add:
+- **Allowed origin**: `http://localhost:5173`
+- **Scopes**: `openid`, `profile`, `groups`
+
+---
+
+#### 3b. Create the BankingApp application
+
+1. Navigate to **Applications** → **+ New Application**
+2. Select **Standard-Based Application** → **OpenID Connect**
+3. Fill in:
+   - **Name**: `BankingApp`
+   - **Grant types**: `Authorization Code` (enable PKCE)
+   - **Callback URL**: `http://localhost:3000/callback`
+4. Click **Register**
+5. **Copy the Client ID** — you will need it in the next step
+
+Under the **Protocol** tab, also:
+- Add **Allowed origin**: `http://localhost:3000`
+- Add **Requested scopes**: `openid`, `profile`, `email`
+---
+
+#### 3c. Copy Client IDs into the apps
+
+**Device Manager UI** — edit [app/my-device-manager/src/main.tsx](app/my-device-manager/src/main.tsx):
+
+```typescript
+const authConfig = {
+    signInRedirectURL: "http://localhost:5173",
+    signOutRedirectURL: "http://localhost:5173",
+    clientID: "<DeviceManagerApp-Client-ID>",   // ← paste here
+    baseUrl: "https://localhost:9443",
+    scope: ["openid", "groups", "profile"]
+};
+```
+
+**Banking App** — copy [banking-app/.env.example](banking-app/.env.example) to `banking-app/.env` and fill in:
+
+```bash
+VITE_WSO2_BASE_URL=https://localhost:9443
+VITE_CLIENT_ID=<BankingApp-Client-ID>          # ← paste here
+VITE_CALLBACK_URL=http://localhost:3000/callback
+VITE_APP_URL=http://localhost:3000
+VITE_DES_BASE_URL=http://localhost:8080
+```
+
+Also update the root `.env` file:
+
+```bash
+BANKING_APP_CLIENT_ID=<BankingApp-Client-ID>   # ← paste here
+DES_UI_CLIENT_ID=<DeviceManagerApp-Client-ID>  # ← paste here
+```
+
+---
+
+#### 3d. Add the adaptive authentication script to BankingApp
+
+1. Open the **BankingApp** application in `https://localhost:9443/console`
+2. Go to the **Sign-In Method** tab
+3. Click **+ Add Authentication Step** → select **Username & Password**
+4. Toggle **Conditional Authentication** on → click **Editor**
+5. Paste the full contents of [identity/wso2-config/adaptive-script.js](identity/wso2-config/adaptive-script.js) into the editor
+6. Update the two configuration variables at the top of the script to match your environment:
+
    ```javascript
+   // URL of the DES service as seen from WSO2 IS (inside Docker: use the service name)
    var DES_BASE_URL = "http://des-service:8080";
-   var DES_INTERNAL_API_KEY = "your-key-from-.env";
+
+   // URL of the Banking App as seen from the browser (used for error redirects)
+   var IS_RETRY_PAGE = "http://localhost:3000";
    ```
-5. Whitelist the DES endpoint for outbound HTTP calls in `deployment.toml`
+
+7. Click **Update** → **Save**
+
+The script executes on every login attempt to BankingApp:
+- Runs Step 1 (username + password)
+- Reads `device_id` from the OIDC authorize request params
+- Calls `GET /device/verify/{device_id}/{username}` on DES
+- On success → calls `POST /device/authenticated/…` and issues tokens
+- On failure → redirects the browser to `IS_RETRY_PAGE` with an error code
+
+---
+
+#### 3e. Whitelist the DES endpoint for outbound HTTP calls
+
+WSO2 IS blocks all outbound HTTP calls from adaptive scripts by default. Add the DES URL to the allowlist:
+
+1. Open `<IS_HOME>/repository/conf/deployment.toml`
+   (when using Docker Compose, this file is mounted from [wso2/](wso2/))
+2. Add the following block:
+
+   ```toml
+   [authentication.adaptive.http]
+   allowed_endpoints = ["http://des-service:8080"]
+   ```
+
+3. Restart WSO2 IS (or restart the container: `docker-compose restart wso2-is`)
+
+> If you skip this step the adaptive script will fail with `DES_UNREACHABLE` on every login attempt.
 
 ### 4. Start the Banking App
 
