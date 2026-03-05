@@ -178,6 +178,15 @@ var onLoginRequest = function (context) {
         onFail: function (context) {
             // Step 1 (credentials) failed — let WSO2 handle the error normally.
             Log.info("Step 1 authentication failed.");
+
+            var errorCode = "WRONG_CREDENTIALS";
+            var errorMessage = "The username or the password you entered is not correct";
+
+            sendError(IS_RETRY_PAGE, {
+                "status": errorCode,
+                "statusMsg": errorMessage,
+                "i18nkey": "iam.wrong.credentials"
+            });
         }
     });
 };
